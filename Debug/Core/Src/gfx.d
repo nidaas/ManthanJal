@@ -1,6 +1,5 @@
-Core/Src/Adafruit_GFX.o: ../Core/Src/Adafruit_GFX.c \
- ../Core/Src/Adafruit_GFX.h ../Core/Src/gfxfont.h ../Core/Src/GUI.h \
- ../Core/Src/lcd.h ../Core/Inc/main.h \
+Core/Src/gfx.o: ../Core/Src/gfx.c ../Core/Src/gfx.h ../Core/Src/gfxfont.h \
+ ../Core/Src/GUI.h ../Core/Src/lcd.h ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h \
  ../Core/Inc/stm32f1xx_hal_conf.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h \
@@ -26,7 +25,7 @@ Core/Src/Adafruit_GFX.o: ../Core/Src/Adafruit_GFX.c \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
  ../Core/Src/glcdfont.c
 
-../Core/Src/Adafruit_GFX.h:
+../Core/Src/gfx.h:
 
 ../Core/Src/gfxfont.h:
 

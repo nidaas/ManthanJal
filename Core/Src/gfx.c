@@ -31,10 +31,10 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Adafruit_GFX.h"
+#include "gfx.h"
 
 #include "glcdfont.c"
-
+#include <math.h>
 #ifndef min
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
@@ -837,6 +837,177 @@ void gfx_fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2
     gfx_writeFastHLine(a, y, b - a + 1, color);
   }
   gfx_endWrite();
+}
+
+// #########################################################################
+// Draw a circular or elliptical arc with a defined thickness
+// #########################################################################
+
+// x,y == coords of centre of arc
+// start_angle = 0 - 359
+// seg_count = number of 3 degree segments to draw (120 => 360 degree arc)
+// rx = x axis radius
+// yx = y axis radius
+// w  = width (thickness) of arc in pixels
+// colour = 16 bit colour value
+// Note if rx and ry are the same then an arc of a circle is drawn
+
+int gfx_fillArc(int x, int y, int start_angle, int seg_count, int rx, int ry, int w, unsigned int colour)
+{
+
+  uint8_t seg = 3; // Segments are 3 degrees wide = 120 segments for 360 degrees
+  uint8_t inc = 3; // Draw segments every 3 degrees, increase to 6 for segmented ring
+
+    // Calculate first pair of coordinates for segment start
+    float sx = cos((start_angle - 90) * DEG2RAD);
+    float sy = sin((start_angle - 90) * DEG2RAD);
+    uint16_t x0 = sx * (rx - w) + x;
+    uint16_t y0 = sy * (ry - w) + y;
+    uint16_t x1 = sx * rx + x;
+    uint16_t y1 = sy * ry + y;
+
+  // Draw colour blocks every inc degrees
+  for (int i = start_angle; i < start_angle + seg * seg_count; i += inc) {
+
+    // Calculate pair of coordinates for segment end
+    float sx2 = cos((i + seg - 90) * DEG2RAD);
+    float sy2 = sin((i + seg - 90) * DEG2RAD);
+    int x2 = sx2 * (rx - w) + x;
+    int y2 = sy2 * (ry - w) + y;
+    int x3 = sx2 * rx + x;
+    int y3 = sy2 * ry + y;
+
+    gfx_fillTriangle(x0, y0, x1, y1, x2, y2, colour);
+    gfx_fillTriangle(x1, y1, x2, y2, x3, y3, colour);
+
+    // Copy segment end to sgement start for next segment
+    x0 = x2;
+    y0 = y2;
+    x1 = x3;
+    y1 = y3;
+  }
+}
+
+
+/***************************************************************************************
+** Function name:           drawEllipse
+** Description:             Draw a ellipse outline
+***************************************************************************************/
+void gfx_drawEllipse(int16_t x0, int16_t y0, int32_t rx, int32_t ry, uint16_t color)
+{
+  if (rx<2) return;
+  if (ry<2) return;
+  int32_t x, y;
+  int32_t rx2 = rx * rx;
+  int32_t ry2 = ry * ry;
+  int32_t fx2 = 4 * rx2;
+  int32_t fy2 = 4 * ry2;
+  int32_t s;
+
+  for (x = 0, y = ry, s = 2*ry2+rx2*(1-2*ry); ry2*x <= rx2*y; x++) {
+    // These are ordered to minimise coordinate changes in x or y
+    // drawPixel can then send fewer bounding box commands
+	  gfx_writePixel(x0 + x, y0 + y, color);
+	  gfx_writePixel(x0 - x, y0 + y, color);
+	  gfx_writePixel(x0 - x, y0 - y, color);
+	  gfx_writePixel(x0 + x, y0 - y, color);
+    if (s >= 0) {
+      s += fx2 * (1 - y);
+      y--;
+    }
+    s += ry2 * ((4 * x) + 6);
+  }
+
+  for (x = rx, y = 0, s = 2*rx2+ry2*(1-2*rx); rx2*y <= ry2*x; y++) {
+    // These are ordered to minimise coordinate changes in x or y
+    // drawPixel can then send fewer bounding box commands
+	  gfx_writePixel(x0 + x, y0 + y, color);
+	  gfx_writePixel(x0 - x, y0 + y, color);
+	  gfx_writePixel(x0 - x, y0 - y, color);
+	  gfx_writePixel(x0 + x, y0 - y, color);
+    if (s >= 0)
+    {
+      s += fy2 * (1 - x);
+      x--;
+    }
+    s += rx2 * ((4 * y) + 6);
+  }
+
+}
+
+
+/***************************************************************************************
+** Function name:           fillEllipse
+** Description:             draw a filled ellipse
+***************************************************************************************/
+void gfx_fillEllipse(int16_t x0, int16_t y0, int32_t rx, int32_t ry, uint16_t color)
+{
+  if (rx<2) return;
+  if (ry<2) return;
+  int32_t x, y;
+  int32_t rx2 = rx * rx;
+  int32_t ry2 = ry * ry;
+  int32_t fx2 = 4 * rx2;
+  int32_t fy2 = 4 * ry2;
+  int32_t s;
+
+  for (x = 0, y = ry, s = 2*ry2+rx2*(1-2*ry); ry2*x <= rx2*y; x++) {
+    gfx_drawFastHLine(x0 - x, y0 - y, x + x + 1, color);
+    gfx_drawFastHLine(x0 - x, y0 + y, x + x + 1, color);
+
+    if (s >= 0) {
+      s += fx2 * (1 - y);
+      y--;
+    }
+    s += ry2 * ((4 * x) + 6);
+  }
+
+  for (x = rx, y = 0, s = 2*rx2+ry2*(1-2*rx); rx2*y <= ry2*x; y++) {
+    gfx_drawFastHLine(x0 - x, y0 - y, x + x + 1, color);
+    gfx_drawFastHLine(x0 - x, y0 + y, x + x + 1, color);
+
+    if (s >= 0) {
+      s += fy2 * (1 - x);
+      x--;
+    }
+    s += rx2 * ((4 * y) + 6);
+  }
+}
+
+
+void gfx_drawRectWithAngle(int x, int y, int w, int h,int angle,int color){
+
+}
+
+void gfx_FillRectWithAngle(int x, int y, int w, int h,int angle,int color){
+	int revert=0;
+	int x0=0,y0=0,x1=0,y1=0,xa=0,ya=0;
+	float cosAngle=0.0,sinAngle=0.0;
+	cosAngle=cos(angle*3.14/180);
+	sinAngle=sin(angle*3.14/180);
+
+	xa=w*cosAngle;
+	ya=w*sinAngle;
+
+	if((angle>90 && angle<180 )|| ((angle>270 && angle<360 ))){
+		revert=1;
+	}
+
+	for(int i=0;i<h;i++){
+		x0=x+i;
+		if(revert){
+			y0=y+i;
+		}
+		else{
+			y0=y-i;
+		}
+		x1=x0+xa;
+		y1=y0+ya;
+		gfx_drawLine(x0,y0,x1,y1, color);
+		gfx_drawLine(x0,y0+1,x1,y1+1, color);
+
+	}
+
 }
 
 // BITMAP / XBITMAP / GRAYSCALE / RGB BITMAP FUNCTIONS ---------------------
@@ -2753,3 +2924,5 @@ void gfx_canvas16_drawFastRawHLine(int16_t x, int16_t y, int16_t w,
 	  gfx_canvas16_buffer[i] = color;
   }
 }
+
+

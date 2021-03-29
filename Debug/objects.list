@@ -1,5 +1,5 @@
-"Core/Src/Adafruit_GFX.o"
 "Core/Src/GUI.o"
+"Core/Src/gfx.o"
 "Core/Src/glcdfont.o"
 "Core/Src/lcd.o"
 "Core/Src/main.o"

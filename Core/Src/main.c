@@ -20,11 +20,14 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-#include "Adafruit_GFX.h"
-#include "../Fonts/FreeMonoBold18pt7b.h"
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
 #include "lcd.h"
-#include "gui.h"
-#include "test.h"
+#include "gfx.h"
+#include "../Fonts/FreeMonoBold18pt7b.h"
+#include <math.h>
+
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,6 +61,187 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+int crossX1=228,crossY1=151,crossX2=261,crossY2=186;
+float angleF=0,angleValueX=0,angleValueY=0;
+int aniAngle[8]={15,30,45,60,75,90};
+int pHColor[4]={LIGHTGREEN,0x658C,0x36B9,BLUE};
+uint16_t aniAnglePos=0;
+
+void ClearprocessAni(int angle){
+
+	gfx_drawLine(crossX1, crossY1, crossX2, crossY2, RED);
+	gfx_drawLine(crossX1, crossY1+1, crossX2, crossY2+1, RED);
+	gfx_drawLine(crossX1, crossY1+1, crossX2, crossY2+1, RED);
+
+	angleF=((float)angle/180.0)*3.14;
+
+	angleValueX=25*cos(angleF);
+	angleValueY=25*sin(angleF);
+
+	crossX1=245+angleValueX;
+	crossY1=170+angleValueY;
+	crossX2=245-angleValueX;
+	crossY2=170-angleValueY;
+
+	gfx_drawLine(crossX1, crossY1, crossX2, crossY2, RED);
+	gfx_drawLine(crossX1, crossY1+1, crossX2, crossY2+1, RED);
+	gfx_drawLine(crossX1, crossY1+1, crossX2, crossY2+1, RED);
+
+}
+
+void processAni(int angle,int pos){
+	angleF=((float)angle/180.0)*3.14;
+
+	angleValueX=25*cos(angleF);
+	angleValueY=25*sin(angleF);
+
+	crossX1=245+angleValueX;
+	crossY1=170+angleValueY;
+	crossX2=245-angleValueX;
+	crossY2=170-angleValueY;
+
+	//gfx_fillCircle(245, 170, 25, RED);
+
+	gfx_drawLine(crossX1, crossY1, crossX2, crossY2, WHITE);
+	gfx_drawLine(crossX1, crossY1+1, crossX2, crossY2+1, WHITE);
+	gfx_drawLine(crossX1, crossY1+1, crossX2, crossY2+1, WHITE);
+
+	angleF=(((float)angle+90.0)/180.0)*3.14;
+
+	angleValueX=25*cos(angleF);
+	angleValueY=25*sin(angleF);
+
+	crossX1=245+angleValueX;
+	crossY1=170+angleValueY;
+	crossX2=245-angleValueX;
+	crossY2=170-angleValueY;
+
+	gfx_drawLine(crossX1, crossY1, crossX2, crossY2, WHITE);
+	gfx_drawLine(crossX1, crossY1+1, crossX2, crossY2+1, WHITE);
+	gfx_drawLine(crossX1, crossY1+1, crossX2, crossY2+1, WHITE);
+
+	static int test=0;
+	if(test==0){
+		test=1;
+		gfx_drawLine(238, 240, 238, 245, BLACK);
+		gfx_drawLine(238, 250, 238, 255, BLACK);
+		gfx_drawLine(238, 260, 238, 265, BLACK);
+
+		gfx_drawLine(246, 235, 246, 240, BLACK);
+		gfx_drawLine(246, 245, 246, 250, BLACK);
+		gfx_drawLine(246, 255, 246, 260, BLACK);
+
+		gfx_drawLine(254, 240, 254, 245, BLACK);
+		gfx_drawLine(254, 250, 254, 255, BLACK);
+		gfx_drawLine(254, 260, 254, 265, BLACK);
+
+		gfx_drawLine(238, 235, 238, 240, pHColor[pos]);
+		gfx_drawLine(238, 245, 238, 250, pHColor[pos]);
+		gfx_drawLine(238, 255, 238, 260, pHColor[pos]);
+
+		gfx_drawLine(246, 240, 246, 245, pHColor[pos]);
+		gfx_drawLine(246, 250, 246, 255, pHColor[pos]);
+		gfx_drawLine(246, 260, 246, 266, pHColor[pos]);
+
+		gfx_drawLine(254, 235, 254, 240, pHColor[pos]);
+		gfx_drawLine(254, 245, 254, 250, pHColor[pos]);
+		gfx_drawLine(254, 255, 254, 260, pHColor[pos]);
+	}
+	else{
+		test=0;
+		gfx_drawLine(238, 235, 238, 240, BLACK);
+		gfx_drawLine(238, 245, 238, 250, BLACK);
+		gfx_drawLine(238, 255, 238, 260, BLACK);
+
+		gfx_drawLine(246, 240, 246, 245, BLACK);
+		gfx_drawLine(246, 250, 246, 255, BLACK);
+		gfx_drawLine(246, 260, 246, 266, BLACK);
+
+		gfx_drawLine(254, 235, 254, 240, BLACK);
+		gfx_drawLine(254, 245, 254, 250, BLACK);
+		gfx_drawLine(254, 255, 254, 260, BLACK);
+
+		gfx_drawLine(238, 240, 238, 245, pHColor[pos]);
+		gfx_drawLine(238, 250, 238, 255, pHColor[pos]);
+		gfx_drawLine(238, 260, 238, 265, pHColor[pos]);
+
+		gfx_drawLine(246, 235, 246, 240, pHColor[pos]);
+		gfx_drawLine(246, 245, 246, 250, pHColor[pos]);
+		gfx_drawLine(246, 255, 246, 260, pHColor[pos]);
+
+		gfx_drawLine(254, 240, 254, 245, pHColor[pos]);
+		gfx_drawLine(254, 250, 254, 255, pHColor[pos]);
+		gfx_drawLine(254, 260, 254, 265, pHColor[pos]);
+	}
+
+
+}
+
+void destroyTap(int pos){
+
+	switch(pos){
+			case 0: gfx_FillRectWithAngle(220,150,40,10,210, BLACK);
+					gfx_btn_initButton(120,120,150,80,BLACK,LIGHTGREEN,WHITE,"pH 8",1);
+					gfx_btn_drawButton(0);
+					break;
+			case 1: gfx_FillRectWithAngle(265,150,40,10,330, BLACK);
+					gfx_btn_initButton(370,120,150,80,BLACK,0x658C,WHITE,"pH 9",1);
+					gfx_btn_drawButton(0);
+					break;
+			case 2: gfx_FillRectWithAngle(210,180,40,10,150, BLACK);
+		  	  		gfx_btn_initButton(120,230,150,80,BLACK,0x36B9,WHITE,"pH 10",1);
+			  	  	gfx_btn_drawButton(0);
+			  	  	break;
+			case 3: gfx_FillRectWithAngle(270,190,40,10,30, BLACK);
+					gfx_btn_initButton(370,230,150,80,BLACK,BLUE,WHITE,"pH 11",1);
+					gfx_btn_drawButton(0);
+					break;
+			default: break;
+		}
+}
+
+void createTap(uint8_t pos){
+	gfx_fillCircle(245, 170, 35, pHColor[pos]);
+	gfx_drawCircle(245, 170, 25, WHITE);
+	gfx_fillCircle(245, 170, 25, RED);
+	gfx_drawCircle(245, 170, 26, WHITE);
+	gfx_fillRoundRect(235, 200, 22, 30, 2,pHColor[pos] );
+
+	gfx_drawLine(225,310,265,310, WHITE);
+	gfx_drawLine(225,310,215,270, WHITE);
+	gfx_drawLine(265,310,275,270, WHITE);
+
+	int xr=0;
+	for(int i=0;i<5;i++){
+		for(int j=0;j<5;j++){
+			gfx_drawLine(225-i,309-xr,265+i,309-xr, pHColor[pos]);
+			xr++;
+		}
+	}
+
+	gfx_drawEllipse(245, 270, 30, 3, WHITE);
+
+	switch(pos){
+			case 0: gfx_FillRectWithAngle(220,150,40,10,210, pHColor[pos]); break;
+			case 1: gfx_FillRectWithAngle(265,150,40,10,330, pHColor[pos]); break;
+			case 2: gfx_FillRectWithAngle(210,180,40,10,150, pHColor[pos]); break;
+			case 3: gfx_FillRectWithAngle(270,190,40,10,30, pHColor[pos]); break;
+			default: break;
+		}
+
+
+}
+
+void tapLoop(uint8_t pos){
+	ClearprocessAni(aniAngle[aniAnglePos]);
+	aniAnglePos++;
+	if(aniAnglePos>=6) aniAnglePos=0;
+	processAni(aniAngle[aniAnglePos],pos);
+
+
+}
+
 
 /* USER CODE END 0 */
 
@@ -93,81 +277,25 @@ int main(void)
   /* USER CODE BEGIN 2 */
   LCD_Init();
 
-//
-	//DrawTestPage("Manthan Jal");
-//
-//  //Show_Str(180,30,YELLOW,BLACK,"Manthan Jal",16,1);
-//  //LCD_DrawFillRectangleColor(60,60,200,110,LIGHTGREEN);
-//  //LCD_DrawFillRectangleColor(280,60,400,110,GREEN);
-//  //LCD_DrawFillRectangleColor(60,170,200,220,0x36B9);
-// // LCD_DrawFillRectangleColor(280,170,400,220,BLUE);
-//  Set_Draw_color(RED);
-//  //Draw_Circle(20,20,20);
-//  //Fill_Rect(60,60,140,50,LIGHTGREEN);
-//
-//  Fill_Round_Rectangle(60,90,200,115,10,0X841A);
-//  Fill_Round_Rectangle(60,60,200,110,10,LIGHTGREEN);
-//  Set_Draw_color(LIGHTGREEN);
-//  Draw_Round_Rectangle(60,60,200,110,10);
-//
-//  Fill_Round_Rectangle(280,90,400,115,10,0x07E2);
-//  Fill_Round_Rectangle(280,60,400,110,10,GREEN);
-//  Set_Draw_color(GREEN);
-//  Draw_Round_Rectangle(280,60,400,110,10);
-//
-//  Fill_Round_Rectangle(60,200,200,225,10,0x36B4);
-//  Fill_Round_Rectangle(60,170,200,220,10,0x36B9);
-//  Set_Draw_color(0x36B9);
-//  Draw_Round_Rectangle(60,170,200,220,10);
-//
-//  Fill_Round_Rectangle(280,200,400,225,10,0x001A);
-//  Fill_Round_Rectangle(280,170,400,220,10,BLUE);
-//  Set_Draw_color(BLUE);
-//  Draw_Round_Rectangle(280,170,400,220,10);
-//
-//  Set_Text_colour(WHITE);
-//  Set_Text_Mode(1);
-//  Set_Text_Back_colour(BLACK);
-//  Set_Text_Size(1);
-//  lcd_Print_String("pH 7", 90, 75);
-//
-//  Set_Text_colour(WHITE);
-//    Set_Text_Mode(1);
-//    Set_Text_Back_colour(BLACK);
-//    Set_Text_Size(1);
-//    lcd_Print_String("pH 8", 310, 75);
-//
-//    Set_Text_colour(WHITE);
-//      Set_Text_Mode(1);
-//      Set_Text_Back_colour(BLACK);
-//      Set_Text_Size(1);
-//      lcd_Print_String("pH 9", 90, 185);
-//
-//      Set_Text_colour(WHITE);
-//        Set_Text_Mode(1);
-//        Set_Text_Back_colour(BLACK);
-//        Set_Text_Size(1);
-//        lcd_Print_String("pH 10", 300, 185);
-
-//  Show_Str(110,75,BLACK,LIGHTGREEN,"pH 7",16,0);
-//  Show_Str(330,75,BLACK,GREEN,"pH 8",16,0);
-//  Show_Str(110,185,BLACK,0x36B9,"pH 9",16,0);
-//  Show_Str(330,185,BLACK,BLUE,"pH 10",16,0);
-
   gfx_init(LCD_H,LCD_W);
   gfx_fillScreen(BLACK);
   gfx_setFont(&FreeMonoBold18pt7b);
   gfx_setTextColor(WHITE);
-  gfx_setCursor(120, 40);
+  gfx_setCursor(160, 40);
   gfx_print("Manthan Jal");
-  gfx_btn_initButton(140,120,150,80,BLACK,LIGHTGREEN,WHITE,"pH 8",1);
+ // gfx_drawRGBBitmap1(100,10,gImage_testImg,40,40);
+  gfx_btn_initButton(120,120,150,80,BLACK,LIGHTGREEN,WHITE,"pH 8",1);
   gfx_btn_drawButton(0);
-  gfx_btn_initButton(350,120,150,80,BLACK,0x658C,WHITE,"pH 9",1);
+  gfx_btn_initButton(370,120,150,80,BLACK,0x658C,WHITE,"pH 9",1);
   gfx_btn_drawButton(0);
-  gfx_btn_initButton(140,230,150,80,BLACK,0x36B9,WHITE,"pH 10",1);
+  gfx_btn_initButton(120,230,150,80,BLACK,0x36B9,WHITE,"pH 10",1);
   gfx_btn_drawButton(0);
-  gfx_btn_initButton(350,230,150,80,BLACK,BLUE,WHITE,"pH 11",1);
+  gfx_btn_initButton(370,230,150,80,BLACK,BLUE,WHITE,"pH 11",1);
   gfx_btn_drawButton(0);
+
+  long ts=0;
+  int post=0;
+  createTap(post);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -177,8 +305,21 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-	HAL_Delay(100);
+	//HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+
+
+	if(HAL_GetTick()-ts>6000){
+		ts=HAL_GetTick();
+		destroyTap(post);
+		post++;
+		if(post>=4){
+			post=0;
+		}
+		createTap(post);
+
+	}
+	tapLoop(post);
+	HAL_Delay(200);
 	//main_test();
 	//Test_Color();
 

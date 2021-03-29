@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "GUI.h"
-
+#define DEG2RAD 0.0174532925
 
   void gfx_init(int16_t w, int16_t h); // Constructor
 
@@ -60,6 +60,12 @@
   void gfx_fillTriangle(int16_t x0, int16_t y0, int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t color);
   void gfx_drawRoundRect(int16_t x0, int16_t y0, int16_t w, int16_t h,  int16_t radius, uint16_t color);
   void gfx_fillRoundRect(int16_t x0, int16_t y0, int16_t w, int16_t h,  int16_t radius, uint16_t color);
+  int gfx_fillArc(int x, int y, int start_angle, int seg_count, int rx, int ry, int w, unsigned int colour);
+  void gfx_fillEllipse(int16_t x0, int16_t y0, int32_t rx, int32_t ry, uint16_t color);
+  void gfx_drawEllipse(int16_t x0, int16_t y0, int32_t rx, int32_t ry, uint16_t color);
+  void gfx_drawRectWithAngle(int x, int y, int w, int h,int angle,int color);
+  void gfx_FillRectWithAngle(int x, int y, int w, int h,int angle,int color);
+
   void gfx_drawBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t h, uint16_t color);
   void gfx_drawBitmap1(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t h, uint16_t color, uint16_t bg);
   void gfx_drawBitmap2(int16_t x, int16_t y, uint8_t *bitmap, int16_t w, int16_t h, uint16_t color);
@@ -155,6 +161,9 @@
   uint16_t gfx_canvas16_getRawPixel(int16_t x, int16_t y) ;
   void gfx_canvas16_drawFastRawVLine(int16_t x, int16_t y, int16_t h, uint16_t color);
   void gfx_canvas16_drawFastRawHLine(int16_t x, int16_t y, int16_t w, uint16_t color);
+
+
+
 
 
 
